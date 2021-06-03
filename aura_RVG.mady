@@ -1,0 +1,34 @@
+/\ MADYRA SYSTEM LANGUAGE ( SERVER SYNTAX )
+/\ Author : ArathKing
+/\ Description/s : Hardware Guard against "R.V.G." on Madyra based Hardware
+
+# <[MadyraParser]>
+# <[MadyraVoid]>
+# <[MadyraMath]>
+
+/\ENV-CONF
+guard >>> madyra.system.Resource[BOOL:]
+start_x_voltage >>> guard.CPU.volt
+# <[AURA]> /\ System Config, needs to be loaded after guard bool var due to bug in the parser. (06.03.2021)
+
+/\MonkeyPatch
+alloc(RVG_Guard, Threads=madyra.SystemThreader[1])
+RVG_Guard >>> {
+
+    
+    if guard >< BOOL:1 >>> {
+        x_voltage >>> guard.CPU.volt
+
+        minV >>> start_x_voltage - madyra.readint[%sys_auraconfig%]%
+
+        on madyra.math.SoL(minV, start_x_voltage) >>> {
+
+            madyra.shutdown(type=FR)
+        } 
+
+
+
+    }
+
+}
+
